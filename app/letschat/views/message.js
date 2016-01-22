@@ -1,54 +1,60 @@
-/**
- * Created by vczero on 15/7/12.
- */
 
 var React = require('react-native');
 var Util = require('./util');
-var Item = require('./message/item');
-var Detail = require('./message/detail');
-var Service = require('./service');
+var AddUser = require('./manager/addUser');
+var ModifyPassword = require('./manager/modifyPassword');
+var DeleteUser = require('./manager/deleteUser');
+var PostMessage = require('./manager/postMessage');
 
 var {
   View,
   Text,
   ScrollView,
   StyleSheet,
-  TextInput,
-  Image,
   TouchableOpacity,
+  AsyncStorage,
 } = React;
 
-var Message = React.createClass({
+
+var Manager = React.createClass({
+
   render: function(){
-    var contents = [];
+    var colors = ['#F4000B', '#17B4FF', '#FFD900', '#F00000'];
+    var tags = [];
     var items = [];
-    if(this.props.data.status){
-      contents = this.props.data.data;
-    }
-    for(var i = 0; i < contents.length; i++){
-      items.push(
-        <Item
-          data={contents[i]}
-          nav={this.props.navigator}
-          component={Detail}
-          key={contents[i].messageid}
-          text={contents[i].message}
-          name={contents[i].username}
-          date={contents[i].time}/>
+    var components = [ModifyPassword, AddUser, DeleteUser, PostMessage];
+    var JSXDOM = [];
+    for(var i in items){
+      JSXDOM.push(
+        <TouchableOpacity key={items[i]} onPress={this._loadPage.bind(this, components[i], items[i])}>
+          <View style={[styles.item, {flexDirection:'row'}]}>
+            <Text style={[styles.tag, {color: colors[i]}]}>{tags[i]}</Text>
+            <Text style={[styles.font,{flex:1}]}>{items[i]}</Text>
+          </View>
+        </TouchableOpacity>
       );
     }
 
+
     return (
       <ScrollView style={styles.container}>
-        <View style={{height:50,padding:7,}}>
-          <TextInput style={styles.search} placeholder="搜索"/>
-        </View>
-        <View style={{backgroundColor:'#fff', borderTopWidth:1, borderTopColor:'#ddd'}}>
-          {items}
-          <View style={{height:35}}></View>
+        <View style={styles.wrapper}>
+          {JSXDOM}
         </View>
       </ScrollView>
     );
+  },
+
+  _loadPage: function(component, title){
+    this.props.navigator.push({
+      title: title,
+      component: component
+    });
+  },
+
+  _clear: function(){
+    this.props.navigator.pop();
+    AsyncStorage.clear();
   }
 
 });
@@ -57,16 +63,28 @@ var styles = StyleSheet.create({
   container:{
     flex:1,
     backgroundColor:'#F5F5F5',
-    flexDirection:'column'
   },
-  search:{
-    height:35,
-    borderWidth:Util.pixel,
-    borderColor:'#ccc',
-    paddingLeft:10,
-    borderRadius:6,
+  item:{
+    height:40,
+    justifyContent: 'center',
+    borderTopWidth: Util.pixel,
+    borderTopColor: '#ddd',
     backgroundColor:'#fff',
+    alignItems:'center',
+  },
+  font:{
+    fontSize:15,
+    marginLeft:5,
+    marginRight:10,
+  },
+  wrapper:{
+    marginTop:30,
+  },
+  tag:{
+    marginLeft:10,
+    fontSize:16,
+    fontWeight:'bold'
   }
 });
 
-module.exports = Message;
+module.exports = Manager;
