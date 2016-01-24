@@ -6,6 +6,7 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "lodash": "^4.0.0",
     "react-native": "^0.18.1"
   }
 }
